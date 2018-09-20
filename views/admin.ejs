@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <?- include("base/head") ?>
+</head>
+<body>
+    <div class="nav">
+        <span>admin</span>
+        <a href="/logout">退出登录</a>
+    </div>
+    <div class="container">
+        <table class="table">
+            <tr>
+                <th>配置文件</th>
+                <th>操作</th>
+            </tr>
+            <? vhosts.forEach(function(item){ ?>
+            <tr>
+                <td><?=item?></td>
+                <td>
+                    <button class="btn btn-primary btn-sm btn-show-edit" data-name="<?=item?>">修改</button>
+                    <button class="btn btn-danger btn-sm btn-del" data-name="<?=item?>">删除</button>
+                </td>
+            </tr>
+            <? }) ?>
+        </table>
+        <div class="btn-group">
+            <button class="btn btn-success btn-show-add">增加</button>
+        </div>
+    </div>
+
+    <div class="modal fade add-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">添加vhost</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form action="#" onsubmit="return false" class="add-form">
+                        <div class="form-group">
+                            <label>域名：</label>
+                            <input type="text" name="vhost" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>路径：</label>
+                            <input type="text" name="dir" class="form-control">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary btn-add">提交更改</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+    <div class="modal fade edit-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">编辑vhost</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form action="#" onsubmit="return false" class="edit-form">
+                        <input type="hidden" name="name">
+                        <div class="form-group">
+                            <label>域名：</label>
+                            <input type="text" name="vhost" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>路径：</label>
+                            <input type="text" name="dir" class="form-control">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary btn-edit">提交更改</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+    <script>
+        $(function () {
+            $('.btn-show-add').on('click',function () {
+                $('.add-modal').modal('show');
+            });
+
+            $('.btn-add').on('click',function () {
+                $.post('/api/addVhost',$('.add-form').serialize(),function (res) {
+                    if (res.code==200){
+                        window.location.reload();
+                    }else{
+                        alert(res);
+                    }
+                })
+            });
+
+            $('.btn-del').on('click',function () {
+                var name=$(this).data('name');
+                if (confirm('确实要删除'+name+'的虚拟域名')){
+                    $.get('/api/delVhost?name='+name,function (res) {
+                        if (res.code==200){
+                            window.location.reload();
+                        }else{
+                            alert(res);
+                        }
+                    })
+                }
+            });
+
+            $('.btn-show-edit').on('click',function () {
+                var name=$(this).data('name');
+                $.get('/api/getConfig?file='+name,function (res) {
+                    console.log(res);
+                    $('.edit-form input[name=name]').val(name);
+                    $('.edit-form input[name=vhost]').val(res.vhost);
+                    $('.edit-form input[name=dir]').val(res.root);
+                    $('.edit-modal').modal('show');
+                });
+            });
+            $('.btn-edit').on('click',function () {
+                $.post('/api/editVhost',$('.edit-form').serialize(),function (res) {
+                    if (res.code==200){
+                        window.location.reload();
+                    }else{
+                        alert(res);
+                    }
+                })
+            });
+        });
+    </script>
+</body>
+</html>

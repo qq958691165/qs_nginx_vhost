@@ -5,8 +5,13 @@ html,body{
 .container{
   position: absolute;
   left: 50%;
-  transform: translateX(-50%);
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%);
   text-align: center;
+}
+.admin-container{
+  top: unset;
+  transform: translateY(0) translateX(-50%);
 }
 .nav{
   display: flex;
